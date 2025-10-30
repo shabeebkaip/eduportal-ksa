@@ -28,24 +28,11 @@ const AdminsManagement = () => {
   return (
     <div className="space-y-6">
       <Card className="glass-effect">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader>
           <div>
             <CardTitle>Admins Management</CardTitle>
             <CardDescription>View and manage all school administrators.</CardDescription>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button disabled>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Admin
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Admins are created when a new school is added.</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </CardHeader>
         <CardContent>
           {loading ? (

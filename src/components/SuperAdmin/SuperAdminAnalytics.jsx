@@ -136,72 +136,40 @@ export default function SuperAdminAnalytics() {
 
   const generateRegionData = (schs, users) => {
     if (!schs || schs.length === 0) {
-      return [
-        { region: 'Middle East', schools: 0, users: 0 },
-        { region: 'Asia Pacific', schools: 0, users: 0 },
-        { region: 'Europe', schools: 0, users: 0 },
-        { region: 'North America', schools: 0, users: 0 }
-      ];
+      return [];
     }
 
-    // Group schools by location/region
-    const regionMap = {};
+    // Group schools by actual location
+    const locationMap = {};
     
     schs.forEach(school => {
       const location = school.location || 'Unknown';
       
-      // Map locations to regions
-      let region = 'Other';
-      if (location.toLowerCase().includes('riyadh') || 
-          location.toLowerCase().includes('saudi') || 
-          location.toLowerCase().includes('dubai') || 
-          location.toLowerCase().includes('uae')) {
-        region = 'Middle East';
-      } else if (location.toLowerCase().includes('china') || 
-                 location.toLowerCase().includes('japan') || 
-                 location.toLowerCase().includes('korea') || 
-                 location.toLowerCase().includes('singapore') || 
-                 location.toLowerCase().includes('india')) {
-        region = 'Asia Pacific';
-      } else if (location.toLowerCase().includes('europe') || 
-                 location.toLowerCase().includes('uk') || 
-                 location.toLowerCase().includes('germany') || 
-                 location.toLowerCase().includes('france')) {
-        region = 'Europe';
-      } else if (location.toLowerCase().includes('usa') || 
-                 location.toLowerCase().includes('canada') || 
-                 location.toLowerCase().includes('america')) {
-        region = 'North America';
+      if (!locationMap[location]) {
+        locationMap[location] = { 
+          schools: 0, 
+          users: 0, 
+          studentCount: 0, 
+          teacherCount: 0 
+        };
       }
       
-      if (!regionMap[region]) {
-        regionMap[region] = { schools: 0, users: 0, studentCount: 0, teacherCount: 0 };
-      }
-      
-      regionMap[region].schools += 1;
-      regionMap[region].studentCount += school.student_count || 0;
-      regionMap[region].teacherCount += school.teacher_count || 0;
+      locationMap[location].schools += 1;
+      locationMap[location].studentCount += school.students_count || 0;
+      locationMap[location].teacherCount += school.teachers_count || 0;
     });
 
     // Convert to array format and calculate users
-    const regions = Object.entries(regionMap).map(([region, data]) => ({
-      region,
+    const locations = Object.entries(locationMap).map(([location, data]) => ({
+      region: location, // Using 'region' key for chart compatibility
       schools: data.schools,
       users: data.studentCount + data.teacherCount
     }));
 
     // Sort by school count descending
-    regions.sort((a, b) => b.schools - a.schools);
+    locations.sort((a, b) => b.schools - a.schools);
 
-    // Add missing regions with 0 values if they don't exist
-    const allRegions = ['Middle East', 'Asia Pacific', 'Europe', 'North America'];
-    allRegions.forEach(region => {
-      if (!regions.find(r => r.region === region)) {
-        regions.push({ region, schools: 0, users: 0 });
-      }
-    });
-
-    return regions.filter(r => r.schools > 0 || r.region === 'Middle East'); // Show Middle East even if 0
+    return locations;
   };
 
   const handleExportReport = () => {
@@ -419,16 +387,24 @@ export default function SuperAdminAnalytics() {
         >
           <Card className="glass-effect border-white/10">
             <CardHeader>
-              <CardTitle className="text-white">Regional Distribution</CardTitle>
+              <CardTitle className="text-white">Location Distribution</CardTitle>
               <CardDescription className="text-gray-400">
-                Schools and users by geographic region
+                Schools and users by location
               </CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={regionData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="region" stroke="#9CA3AF" />
+                  <XAxis 
+                    dataKey="region" 
+                    stroke="#9CA3AF" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    interval={0}
+                    tick={{ fontSize: 12 }}
+                  />
                   <YAxis stroke="#9CA3AF" />
                   <Tooltip 
                     contentStyle={{ 
@@ -437,8 +413,8 @@ export default function SuperAdminAnalytics() {
                       borderRadius: '8px'
                     }} 
                   />
-                  <Bar dataKey="schools" fill="#3B82F6" />
-                  <Bar dataKey="users" fill="#8B5CF6" />
+                  <Bar dataKey="schools" fill="#3B82F6" name="Schools" />
+                  <Bar dataKey="users" fill="#8B5CF6" name="Users" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

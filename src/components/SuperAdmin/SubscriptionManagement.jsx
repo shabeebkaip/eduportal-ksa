@@ -216,7 +216,11 @@ import React, { useState, useEffect } from 'react';
                             <SelectItem key={plan.id} value={plan.name}>{plan.name} - ${plan.price}/mo</SelectItem>
                           ))
                         ) : (
-                          <SelectItem value="Basic">Basic</SelectItem>
+                          <>
+                            <SelectItem value="Basic">Basic</SelectItem>
+                            <SelectItem value="Standard">Standard</SelectItem>
+                            <SelectItem value="Premium">Premium</SelectItem>
+                          </>
                         )}
                       </SelectContent>
                     </Select>
