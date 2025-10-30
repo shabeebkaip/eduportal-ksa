@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { TableShimmer } from '@/components/ui/table-shimmer';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PlusCircle, MoreVertical } from 'lucide-react';
 import {
@@ -36,7 +37,7 @@ const AdminsManagement = () => {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center text-muted-foreground">Loading admins...</div>
+            <TableShimmer rows={5} columns={7} />
           ) : (
             <Table>
               <TableHeader>
