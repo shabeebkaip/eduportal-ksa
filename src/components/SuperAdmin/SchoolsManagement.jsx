@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { TableShimmerWithBadges } from '@/components/ui/table-shimmer';
 import { PlusCircle, MoreVertical, Trash2, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
@@ -374,7 +375,7 @@ const SchoolsManagement = () => {
       <Card className="glass-effect border-white/10">
         <CardContent className="p-0">
           {loading ? (
-            <div className="text-center text-muted-foreground py-12">Loading schools...</div>
+            <TableShimmerWithBadges rows={5} />
           ) : (
             <div className="overflow-x-auto">
               <Table>
