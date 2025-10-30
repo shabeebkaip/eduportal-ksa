@@ -252,23 +252,23 @@ import React, { useState, useEffect } from 'react';
             {filteredSubscriptions.map((sub, index) => (
               <motion.div key={sub.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <Card className="glass-effect border-white/10 card-hover">
-                  <CardContent className="p-6">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div className="flex-1 min-w-[250px]">
-                        <h3 className="text-white font-semibold text-lg">{sub.schools?.name || 'School not found'}</h3>
-                        <p className="text-purple-400 text-sm">{sub.plan} Plan</p>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="text-white font-semibold text-base">{sub.schools?.name || 'School not found'}</h3>
+                        <p className="text-purple-400 text-xs">{sub.plan} Plan</p>
                       </div>
-                      <div className="flex items-center space-x-6">
-                        <div>
-                          <p className="text-gray-400 text-xs">Status</p>
+                      <div className="flex items-center gap-6">
+                        <div className="text-center">
+                          <p className="text-gray-400 text-xs mb-1">Status</p>
                           {getStatusBadge(sub.status)}
                         </div>
-                        <div>
-                          <p className="text-gray-400 text-xs">Period</p>
-                          <p className="text-white font-medium text-sm">{new Date(sub.start_date).toLocaleDateString()} - {new Date(sub.end_date).toLocaleDateString()}</p>
+                        <div className="text-center min-w-[200px]">
+                          <p className="text-gray-400 text-xs mb-1">Period</p>
+                          <p className="text-white font-medium text-xs whitespace-nowrap">{new Date(sub.start_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} - {new Date(sub.end_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</p>
                         </div>
-                        <div>
-                          <p className="text-gray-400 text-xs">Price</p>
+                        <div className="text-center">
+                          <p className="text-gray-400 text-xs mb-1">Price</p>
                           <p className="text-white font-medium text-sm">${sub.price}/mo</p>
                         </div>
                       </div>
