@@ -121,7 +121,7 @@ import React, { useState, useEffect } from 'react';
             .update({
               plan: editingSubscription.plan,
               status: editingSubscription.status,
-              price: parseFloat(editingSubscription.price) || 0,
+              price: parseInt(editingSubscription.price) || 0,
               start_date: editingSubscription.start_date,
               end_date: editingSubscription.end_date
             })
@@ -344,7 +344,7 @@ import React, { useState, useEffect } from 'react';
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="edit-price" className="text-white">Monthly Price ($)</Label>
-                      <Input id="edit-price" type="number" step="0.01" value={editingSubscription.price || ''} onChange={(e) => setEditingSubscription({...editingSubscription, price: e.target.value})} className="bg-white/5 border-white/10 text-white" placeholder="29.99" />
+                      <Input id="edit-price" type="number" step="1" min="0" value={editingSubscription.price || ''} onChange={(e) => setEditingSubscription({...editingSubscription, price: e.target.value})} className="bg-white/5 border-white/10 text-white" placeholder="30" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">

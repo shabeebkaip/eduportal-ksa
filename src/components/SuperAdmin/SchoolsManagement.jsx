@@ -104,25 +104,74 @@ const SchoolsManagement = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingSchool, setEditingSchool] = useState(null);
 
   const [schoolName, setSchoolName] = useState('');
+  const [schoolLocation, setSchoolLocation] = useState('');
   const [adminName, setAdminName] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
 
-  const handleAction = () => {
-    toast({
-      title: "🚧 Feature in Progress",
-      description: "This feature isn't implemented yet—but don't worry! You can request it in your next prompt! 🚀",
+  const openEditDialog = (school) => {
+    setEditingSchool({
+      id: school.id,
+      name: school.name,
+      location: school.location || '',
+      status: school.status || 'Active'
     });
+    setIsEditDialogOpen(true);
   };
 
-  const handleAddSchool = async () => {
-    if (!schoolName || !adminName || !adminEmail || !adminPassword) {
+  const handleEditSchool = async () => {
+    if (!editingSchool.name) {
       toast({
         variant: "destructive",
         title: "Missing Information",
-        description: "Please fill out all fields to add a new school.",
+        description: "School name is required.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('schools')
+        .update({
+          name: editingSchool.name,
+          location: editingSchool.location,
+          status: editingSchool.status
+        })
+        .eq('id', editingSchool.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "✅ School Updated",
+        description: `${editingSchool.name} has been successfully updated.`,
+      });
+      
+      await refetchData();
+      setIsEditDialogOpen(false);
+      setEditingSchool(null);
+    } catch (error) {
+      console.error('Error updating school:', error);
+      toast({
+        variant: "destructive",
+        title: "Failed to update school",
+        description: error.message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAddSchool = async () => {
+    if (!schoolName || !schoolLocation || !adminName || !adminEmail || !adminPassword) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please fill out all required fields (*) to add a new school.",
       });
       return;
     }
@@ -149,6 +198,7 @@ const SchoolsManagement = () => {
       setOpen(false);
       // Reset form
       setSchoolName('');
+      setSchoolLocation('');
       setAdminName('');
       setAdminEmail('');
       setAdminPassword('');
@@ -178,33 +228,87 @@ const SchoolsManagement = () => {
                 Add New School
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] glass-effect">
+            <DialogContent className="sm:max-w-[500px] glass-effect">
               <DialogHeader>
-                <DialogTitle>Add New School</DialogTitle>
+                <DialogTitle className="text-xl">Add New School</DialogTitle>
                 <DialogDescription>
                   Enter the details for the new school and its primary administrator.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="school-name" className="text-right">School Name</Label>
-                  <Input id="school-name" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} className="col-span-3" />
+              <div className="grid gap-6 py-4">
+                {/* School Information Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-300 border-b border-white/10 pb-2">School Information</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="school-name">School Name *</Label>
+                    <Input 
+                      id="school-name" 
+                      value={schoolName} 
+                      onChange={(e) => setSchoolName(e.target.value)} 
+                      placeholder="e.g., Al-Khobar International School"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="school-location">Location *</Label>
+                    <Input 
+                      id="school-location" 
+                      value={schoolLocation} 
+                      onChange={(e) => setSchoolLocation(e.target.value)} 
+                      placeholder="e.g., Riyadh, Saudi Arabia"
+                      className="w-full"
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="admin-name" className="text-right">Admin Name</Label>
-                  <Input id="admin-name" value={adminName} onChange={(e) => setAdminName(e.target.value)} className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="admin-email" className="text-right">Admin Email</Label>
-                  <Input id="admin-email" type="email" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className="col-span-3" />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="admin-password" className="text-right">Password</Label>
-                  <Input id="admin-password" type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="col-span-3" />
+
+                {/* Administrator Information Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-300 border-b border-white/10 pb-2">Administrator Information</h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-name">Full Name *</Label>
+                    <Input 
+                      id="admin-name" 
+                      value={adminName} 
+                      onChange={(e) => setAdminName(e.target.value)} 
+                      placeholder="e.g., Ahmed Al-Rahman"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-email">Email Address *</Label>
+                    <Input 
+                      id="admin-email" 
+                      type="email" 
+                      value={adminEmail} 
+                      onChange={(e) => setAdminEmail(e.target.value)} 
+                      placeholder="admin@school.edu.sa"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-password">Password *</Label>
+                    <Input 
+                      id="admin-password" 
+                      type="password" 
+                      value={adminPassword} 
+                      onChange={(e) => setAdminPassword(e.target.value)} 
+                      placeholder="Minimum 8 characters"
+                      className="w-full"
+                    />
+                    <p className="text-xs text-gray-400">The administrator will use this to log in for the first time.</p>
+                  </div>
                 </div>
               </div>
-              <DialogFooter>
-                <Button type="submit" onClick={handleAddSchool} disabled={isSubmitting}>
+              <DialogFooter className="gap-2">
+                <Button variant="secondary" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  onClick={handleAddSchool} 
+                  disabled={isSubmitting}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                >
                   {isSubmitting ? 'Creating...' : 'Create School'}
                 </Button>
               </DialogFooter>
@@ -246,7 +350,7 @@ const SchoolsManagement = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem onClick={handleAction}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openEditDialog(school)}>Edit</DropdownMenuItem>
                           <DeleteSchoolDialog school={school} onDeleted={refetchData} />
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -258,6 +362,62 @@ const SchoolsManagement = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Edit School Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] glass-effect">
+          <DialogHeader>
+            <DialogTitle>Edit School</DialogTitle>
+            <DialogDescription>
+              Update the school information below.
+            </DialogDescription>
+          </DialogHeader>
+          {editingSchool && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-school-name" className="text-right">School Name</Label>
+                <Input 
+                  id="edit-school-name" 
+                  value={editingSchool.name} 
+                  onChange={(e) => setEditingSchool({...editingSchool, name: e.target.value})} 
+                  className="col-span-3" 
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-location" className="text-right">Location</Label>
+                <Input 
+                  id="edit-location" 
+                  value={editingSchool.location} 
+                  onChange={(e) => setEditingSchool({...editingSchool, location: e.target.value})} 
+                  className="col-span-3" 
+                  placeholder="e.g., Riyadh, Saudi Arabia"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-status" className="text-right">Status</Label>
+                <select
+                  id="edit-status"
+                  value={editingSchool.status}
+                  onChange={(e) => setEditingSchool({...editingSchool, status: e.target.value})}
+                  className="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" onClick={handleEditSchool} disabled={isSubmitting}>
+              {isSubmitting ? 'Updating...' : 'Update School'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

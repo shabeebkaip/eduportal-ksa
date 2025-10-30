@@ -39,6 +39,9 @@ export default function Header({ title, children }) {
     });
   };
 
+  // Only show academic year and term for school-related roles, not super-admin
+  const showAcademicInfo = activeRole && activeRole !== 'super-admin';
+
   return (
     <header className="bg-background/80 backdrop-blur-sm border-b sticky top-0 z-30">
       <div className="px-6 h-20 flex items-center justify-between">
@@ -48,17 +51,19 @@ export default function Header({ title, children }) {
         
         <div className="flex items-center space-x-4">
           {children}
-          <div className="flex items-center space-x-4 bg-secondary/50 px-3 py-1.5 rounded-lg border">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-cyan-400" />
-              <span className="text-sm text-foreground">{academicYear || 'N/A'}</span>
+          {showAcademicInfo && (
+            <div className="flex items-center space-x-4 bg-secondary/50 px-3 py-1.5 rounded-lg border">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-cyan-400" />
+                <span className="text-sm text-foreground">{academicYear || 'N/A'}</span>
+              </div>
+              <div className="w-px h-4 bg-border"></div>
+              <div className="flex items-center space-x-2">
+                <BookOpen className="w-4 h-4 text-purple-400" />
+                <span className="text-sm text-foreground">{term?.name || 'N/A'}</span>
+              </div>
             </div>
-            <div className="w-px h-4 bg-border"></div>
-            <div className="flex items-center space-x-2">
-              <BookOpen className="w-4 h-4 text-purple-400" />
-              <span className="text-sm text-foreground">{term?.name || 'N/A'}</span>
-            </div>
-          </div>
+          )}
           <ThemeToggle />
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" onClick={handleUnimplemented}>
             <Bell className="h-5 w-5" />
